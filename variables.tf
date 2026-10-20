@@ -1,6 +1,11 @@
 variable "label" {
   type        = string
   description = "Unique label for this server. Used as the Vultr instance label and the SSH key name (FR-004, FR-018). Must be unique per server — never reused."
+
+  validation {
+    condition     = length(trimspace(var.label)) > 0
+    error_message = "label must not be empty."
+  }
 }
 
 variable "region" {
@@ -31,12 +36,22 @@ variable "ssh_port" {
   type        = number
   description = "Non-default SSH port the administrative account will use after hardening (FR-012). Must be used consistently in every ssh/scp command against this server afterward."
   default     = 27983
+
+  validation {
+    condition     = var.ssh_port >= 1 && var.ssh_port <= 65535
+    error_message = "ssh_port must be a valid TCP port (1-65535)."
+  }
 }
 
 variable "allowed_ports" {
   type        = list(number)
   description = "Additional inbound TCP ports to allow through the firewall beyond ssh_port, for this server's intended workload (FR-011)."
   default     = []
+
+  validation {
+    condition     = alltrue([for p in var.allowed_ports : p >= 1 && p <= 65535])
+    error_message = "Every entry in allowed_ports must be a valid TCP port (1-65535)."
+  }
 }
 
 variable "update_notification_email" {
