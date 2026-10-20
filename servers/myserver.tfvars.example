@@ -1,6 +1,6 @@
 # Per-label override file. Copy this to servers/<label>.tfvars for each server you
-# provision — each label gets its own Terraform state (research.md §5), and this
-# file is how you pin that label's specific settings. Run with:
+# provision — each label gets its own Terraform state, and this file is how you
+# pin that label's specific settings. Run with:
 #   terraform apply -var-file=servers/myserver.tfvars
 
 label = "myserver"
