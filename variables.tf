@@ -38,8 +38,8 @@ variable "ssh_port" {
   default     = 27983
 
   validation {
-    condition     = var.ssh_port >= 1 && var.ssh_port <= 65535
-    error_message = "ssh_port must be a valid TCP port (1-65535)."
+    condition     = var.ssh_port >= 1 && var.ssh_port <= 65535 && var.ssh_port != 22
+    error_message = "ssh_port must be a valid TCP port (1-65535) other than 22. Port 22 is reserved for the temporary fallback rule removed at the end of a successful run."
   }
 }
 
