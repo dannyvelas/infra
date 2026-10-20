@@ -39,3 +39,14 @@ resource "vultr_ssh_key" "admin" {
   name    = "${var.label}-admin"
   ssh_key = trimspace(data.local_file.admin_public_key.content)
 }
+
+# FR-005, FR-006: create the instance using the registered key, so initial
+# root access requires no emailed/typed password. user_data is wired in
+# separately (see cloud-init/user-data.yaml.tftpl) once that template exists.
+resource "vultr_instance" "server" {
+  label       = var.label
+  region      = var.region
+  plan        = var.plan
+  os_id       = var.os_id
+  ssh_key_ids = [vultr_ssh_key.admin.id]
+}
