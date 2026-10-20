@@ -1,0 +1,13 @@
+# Terraform local state and cache — never shared, may contain resource details
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+crash.log
+crash.*.log
+
+# Real per-run variable files may reference actual labels/regions in use;
+# only the committed *.example templates are tracked.
+*.tfvars
+!*.tfvars.example
+!servers/*.tfvars.example
