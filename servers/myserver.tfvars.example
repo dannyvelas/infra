@@ -1,0 +1,17 @@
+# Per-label override file. Copy this to servers/<label>.tfvars for each server you
+# provision — each label gets its own Terraform state (research.md §5), and this
+# file is how you pin that label's specific settings. Run with:
+#   terraform apply -var-file=servers/myserver.tfvars
+
+label = "myserver"
+
+# Uncomment and override any of these if this server needs something other than
+# the shared defaults in ../terraform.tfvars.example:
+# region                     = "mia"
+# plan                       = "vc2-1c-1gb"
+# os_id                      = 2136
+# admin_username             = "admin"
+# ssh_port                   = 27983
+# allowed_ports              = []
+# update_notification_email  = "admin@example.com"
+# update_reboot_time         = "04:00"
