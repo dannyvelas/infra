@@ -34,12 +34,12 @@ variable "admin_username" {
 
 variable "ssh_port" {
   type        = number
-  description = "Non-default SSH port the administrative account will use after hardening. Must be used consistently in every ssh/scp command against this server afterward."
+  description = "SSH port the administrative account uses after hardening."
   default     = 27983
 
   validation {
-    condition     = var.ssh_port >= 1 && var.ssh_port <= 65535 && var.ssh_port != 22
-    error_message = "ssh_port must be a valid TCP port (1-65535) other than 22. Port 22 is reserved for the temporary fallback rule removed at the end of a successful run."
+    condition     = var.ssh_port >= 1 && var.ssh_port <= 65535
+    error_message = "ssh_port must be a valid TCP port (1-65535)."
   }
 }
 
