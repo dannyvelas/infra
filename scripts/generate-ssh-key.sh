@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Generates the dedicated, per-server SSH key pair described in FR-001/FR-002.
+# Generates a dedicated, per-server SSH key pair.
 # One key per label, never reused across servers. The passphrase is set
 # interactively by the operator and is never captured or persisted by this
 # script — only the resulting key files exist on disk afterward.

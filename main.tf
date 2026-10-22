@@ -1,7 +1,7 @@
-# Provisions one hardened Vultr server per `terraform apply`, replacing the
-# manual runbook in specs/001-vultr-server-provisioning/spec.md. See
-# specs/001-vultr-server-provisioning/plan.md and research.md for the design
-# rationale (cloud-init bootstrap + an external verify -> lock-down gate).
+# Provisions one hardened Vultr server per `terraform apply`: a dedicated SSH
+# key, the instance itself, and (via cloud-init/user-data.yaml.tftpl plus the
+# scripts/ chain below) a locked-down admin account, firewall, and automatic
+# security updates.
 
 provider "vultr" {
   # Reads the API key from the VULTR_API_KEY environment variable
@@ -14,8 +14,8 @@ locals {
   ssh_private_key_path = "${pathexpand("~/.ssh")}/id_ed25519_${var.label}"
 }
 
-# FR-001, FR-002: generate a dedicated key pair for this label only, entirely
-# outside Terraform-managed state. Never reused across servers.
+# Generate a dedicated key pair for this label only, entirely outside
+# Terraform-managed state. Never reused across servers.
 resource "null_resource" "generate_ssh_key" {
   triggers = {
     label = var.label
@@ -33,16 +33,16 @@ data "local_file" "admin_public_key" {
   depends_on = [null_resource.generate_ssh_key]
 }
 
-# FR-003: register the public key with Vultr so it can be injected into
-# root's authorized_keys at first boot.
+# Register the public key with Vultr so it can be injected into root's
+# authorized_keys at first boot.
 resource "vultr_ssh_key" "admin" {
   name    = "${var.label}-admin"
   ssh_key = trimspace(data.local_file.admin_public_key.content)
 }
 
-# FR-005, FR-006: create the instance using the registered key, so initial
-# root access requires no emailed/typed password. user_data is wired in
-# separately (see cloud-init/user-data.yaml.tftpl) once that template exists.
+# Create the instance using the registered key, so initial root access
+# requires no emailed/typed password. user_data is wired in separately
+# (see cloud-init/user-data.yaml.tftpl) once that template exists.
 resource "vultr_instance" "server" {
   label       = var.label
   region      = var.region
