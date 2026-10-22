@@ -40,13 +40,47 @@ resource "vultr_ssh_key" "admin" {
   ssh_key = trimspace(data.local_file.admin_public_key.content)
 }
 
+# Filters inbound traffic at the network edge, before it reaches the box.
+resource "vultr_firewall_group" "admin" {
+  description = "${var.label}-admin"
+}
+
+resource "vultr_firewall_rule" "ssh" {
+  firewall_group_id = vultr_firewall_group.admin.id
+  protocol          = "tcp"
+  ip_type           = "v4"
+  subnet            = "0.0.0.0"
+  subnet_size       = 0
+  port              = tostring(var.ssh_port)
+  notes             = "administrative SSH access"
+}
+
+resource "vultr_firewall_rule" "allowed" {
+  for_each = toset([for p in var.allowed_ports : tostring(p)])
+
+  firewall_group_id = vultr_firewall_group.admin.id
+  protocol          = "tcp"
+  ip_type           = "v4"
+  subnet            = "0.0.0.0"
+  subnet_size       = 0
+  port              = each.value
+  notes             = "operator-designated workload port"
+}
+
 # Create the instance using the registered key, so initial root access
-# requires no emailed/typed password. user_data is wired in separately
-# (see cloud-init/user-data.yaml.tftpl) once that template exists.
+# requires no emailed/typed password.
 resource "vultr_instance" "server" {
-  label       = var.label
-  region      = var.region
-  plan        = var.plan
-  os_id       = var.os_id
-  ssh_key_ids = [vultr_ssh_key.admin.id]
+  label             = var.label
+  region            = var.region
+  plan              = var.plan
+  os_id             = var.os_id
+  ssh_key_ids       = [vultr_ssh_key.admin.id]
+  firewall_group_id = vultr_firewall_group.admin.id
+  user_data = templatefile("${path.module}/cloud-init/user-data.yaml.tftpl", {
+    admin_username             = var.admin_username
+    admin_public_key           = trimspace(data.local_file.admin_public_key.content)
+    ssh_port                   = var.ssh_port
+    update_notification_email  = var.update_notification_email
+    update_reboot_time         = var.update_reboot_time
+  })
 }
