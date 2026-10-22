@@ -37,17 +37,17 @@ Using the `ip_address` and `ssh_port` from Step 2's output:
 
 ```sh
 ssh -p <ssh_port> -i ~/.ssh/id_ed25519_quickstart-test admin@<ip_address> 'id; sudo whoami'   # expect: admin in sudo group; "root" with no password prompt
-ssh root@<ip_address>                                                                          # expect: connection refused (root login disabled)
-ssh -p 22 -i ~/.ssh/id_ed25519_quickstart-test admin@<ip_address> 'echo ok'                     # expect: connection refused (port 22 fallback removed)
-ssh -p <ssh_port> admin@<ip_address> 'sudo ufw status verbose'                                  # expect: default deny incoming; only ssh_port (and any allowed_ports) permitted
-ssh -p <ssh_port> admin@<ip_address> 'systemctl is-enabled unattended-upgrades'                  # expect: enabled
+ssh -p <ssh_port> root@<ip_address>                                                            # expect: connection refused (root login disabled)
+ssh -p <ssh_port> -i ~/.ssh/id_ed25519_quickstart-test admin@<ip_address> 'systemctl is-enabled unattended-upgrades'  # expect: enabled
 ```
+
+Also confirm, from the Vultr dashboard or `vultr-cli firewall rule list <firewall-group-id>`, that the firewall group allows only `ssh_port` (and any `allowed_ports`) — nothing else.
 
 **Expected outcome**: every command above matches its stated expectation. This is the concrete proof for SC-001 and SC-002.
 
 ## Step 4: Prove the lockout-safety behavior (proves User Story 2)
 
-In a scratch copy of the module, temporarily point `bootstrap-admin.sh`'s verification step at a deliberately wrong key path (or otherwise force the FR-009 check to fail), then:
+In a scratch copy of the module, temporarily point `scripts/verify-admin-access.sh` at a deliberately wrong key path (or otherwise force the FR-009 check to fail), then:
 
 ```sh
 terraform apply -var-file=servers/quickstart-test.tfvars
