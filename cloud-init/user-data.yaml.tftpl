@@ -1,9 +1,8 @@
 #cloud-config
 # Rendered by main.tf via templatefile() into vultr_instance.user_data.
 # Runs unattended at first boot: creates the admin account, installs the
-# firewall/update packages, and brings up the initial dual-port SSH/firewall
-# state. The verify -> lock-down gate that disables root/password login stays
-# external, in scripts/ — see those scripts for why.
+# update packages, and brings up SSH on ssh_port. The verify -> lock-down
+# gate that disables root/password login stays external, in scripts/.
 #
 # IMPORTANT: ${...} below is Terraform templatefile() interpolation of values
 # this file is rendered with. Shell variables created in runcmd (e.g.
@@ -12,7 +11,6 @@
 
 package_update: true
 packages:
-  - ufw
   - unattended-upgrades
   - apt-listchanges
   - bsd-mailx
@@ -36,3 +34,16 @@ runcmd:
   - printf '%s:%s\n' "${admin_username}" "$RECOVERY_PASSWORD" | chpasswd
   - install -m 600 -o root -g root /dev/null /root/.console-recovery-password
   - printf '%s\n' "$RECOVERY_PASSWORD" > /root/.console-recovery-password
+  - printf 'Port %s\n' "${ssh_port}" > /etc/ssh/sshd_config.d/00-admin.conf
+  - systemctl is-active ssh.socket && systemctl restart ssh.socket || systemctl restart ssh
+  - |
+    cat > /etc/apt/apt.conf.d/20auto-upgrades <<'EOF'
+    APT::Periodic::Update-Package-Lists "1";
+    APT::Periodic::Unattended-Upgrade "1";
+    EOF
+  - printf 'Unattended-Upgrade::Mail "%s";\n' "${update_notification_email}" > /etc/apt/apt.conf.d/51custom-unattended-upgrades
+  - printf 'Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";\n' >> /etc/apt/apt.conf.d/51custom-unattended-upgrades
+  - printf 'Unattended-Upgrade::Remove-Unused-Dependencies "true";\n' >> /etc/apt/apt.conf.d/51custom-unattended-upgrades
+  - printf 'Unattended-Upgrade::Automatic-Reboot "true";\n' >> /etc/apt/apt.conf.d/51custom-unattended-upgrades
+  - printf 'Unattended-Upgrade::Automatic-Reboot-Time "%s";\n' "${update_reboot_time}" >> /etc/apt/apt.conf.d/51custom-unattended-upgrades
+  - systemctl enable --now unattended-upgrades
