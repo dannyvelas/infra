@@ -24,7 +24,7 @@ description: "Task list template for feature implementation"
 Single Terraform root module at the repository root, per plan.md's Project Structure:
 
 ```text
-main.tf, variables.tf, outputs.tf, versions.tf, terraform.tfvars.example
+main.tf, variables.tf, outputs.tf, versions.tf
 cloud-init/user-data.yaml.tftpl
 servers/myserver.tfvars.example
 scripts/*.sh
@@ -39,7 +39,7 @@ tests/validate.sh
 
 - [ ] T001 Create the repository directory structure: `cloud-init/`, `servers/`, `scripts/`, `tests/`, matching the tree in plan.md's Project Structure
 - [ ] T002 [P] Create `versions.tf` pinning `terraform >= 1.5` and the `vultr/vultr` provider (per research.md §1)
-- [ ] T003 [P] Create `.gitignore` excluding `*.tfstate`, `*.tfstate.backup`, `.terraform/`, `.terraform.lock.hcl`, and `servers/*.tfvars` (every real per-label tfvars file), while still tracking the committed `servers/myserver.tfvars.example` and `terraform.tfvars.example`
+- [ ] T003 [P] Create `.gitignore` excluding `*.tfstate`, `*.tfstate.backup`, `.terraform/`, `.terraform.lock.hcl`, and `servers/*.tfvars` (every real per-label tfvars file), while still tracking the committed `servers/myserver.tfvars.example`
 - [ ] T004 [P] Create `tests/validate.sh` running, in order: `terraform fmt -check`, `terraform validate`, `shellcheck scripts/*.sh` — exiting non-zero if any step fails (research.md §7)
 
 ---
@@ -51,7 +51,6 @@ tests/validate.sh
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T005 Create `variables.tf` declaring every input from contracts/interface.md's Input contract table: `label` (string, required, no default), `region` (string, optional, documented default region code), `plan` (string, optional, documented default plan/size code), `os_id` (number, optional, documented default Debian OS image ID), `admin_username` (string, optional, default `"admin"`), `ssh_port` (number, optional, documented non-standard default port), `allowed_ports` (list(number), optional, default `[]`), `update_notification_email` (string, optional, default is a placeholder requiring override), `update_reboot_time` (string in `HH:MM` form, optional, default `"04:00"`)
-- [ ] T006 [P] Create `terraform.tfvars.example` documenting the chosen default `region`, `plan`, and `os_id` values referenced by FR-004
 - [ ] T007 [P] Create `servers/myserver.tfvars.example` as the per-label override template described in plan.md's Structure Decision (one tfvars file per provisioned server label; each label gets its own Terraform state per research.md §5)
 - [ ] T008 Add `validation` blocks to the `label`, `ssh_port`, and `allowed_ports` variables in `variables.tf`: reject an empty `label`, and reject any `ssh_port` or `allowed_ports` entry outside the valid TCP port range 1–65535, per contracts/interface.md's input contract rules
 
@@ -131,7 +130,7 @@ tests/validate.sh
 ### Parallel Opportunities
 
 - Setup: T002, T003, T004 (after T001)
-- Foundational: T006, T007 (after T005)
+- Foundational: T007 (after T005)
 - US1: T012 can start alongside T009–T011; T017, T018, T020, T021, T023 are all independent files and can be written in parallel once T015 has defined what they'll be wired into
 - Polish: T029, T030
 
@@ -176,5 +175,6 @@ Task: "Create outputs.tf"
 - [Story] label maps task to US1 or US2 for traceability
 - No automated test framework is used (research.md §7) — quickstart.md runs against real infrastructure serve as the acceptance tests, called out explicitly as tasks T024 and T028
 - T016 (wait-for-cloud-init.sh) and T019 (verify-new-port.sh) were dropped: verify-admin-access.sh's retry loop over `ssh_port` already covers both (research.md §2)
+- T006 (`terraform.tfvars.example`) was dropped: it only restated defaults already declared in `variables.tf` (T005) and was never auto-loaded by Terraform (only a literal `terraform.tfvars` or `*.auto.tfvars` would be) — redundant with no functional purpose
 - Commit after each task or logical group
 - Every secret-handling task (T009, T012, T018) must be re-checked against research.md §3 before being considered done: no passphrase or recovery password may ever be written to a `.tf`-managed attribute, an output, or version control

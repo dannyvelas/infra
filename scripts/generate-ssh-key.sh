@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# short-hand to check if the first argument is set, and error out if not
 label="${1:?usage: generate-ssh-key.sh <label>}"
 key_path="${HOME}/.ssh/id_ed25519_${label}"
 

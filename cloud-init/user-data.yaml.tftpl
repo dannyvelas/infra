@@ -2,6 +2,7 @@
 package_update: true
 packages:
   - unattended-upgrades
+  # packages for local mail delivery. dont actually relay anywhere
   - apt-listchanges
   - bsd-mailx
 
@@ -16,7 +17,9 @@ users:
 runcmd:
   - set -e
   - RECOVERY_PASSWORD=$(openssl rand -base64 18)
+  # the non-interactive equivalent of running `passwd admin`
   - printf '%s:%s\n' "${admin_username}" "$RECOVERY_PASSWORD" | chpasswd
+  # one-liner to create /root/.console-recovery-password file with owner root:root and 600
   - install -m 600 -o root -g root /dev/null /root/.console-recovery-password
   - printf '%s\n' "$RECOVERY_PASSWORD" > /root/.console-recovery-password
   - printf 'Port %s\n' "${ssh_port}" > /etc/ssh/sshd_config.d/00-admin.conf

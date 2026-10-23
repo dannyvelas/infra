@@ -58,7 +58,6 @@ main.tf                      # vultr_ssh_key + vultr_firewall_group/rules + vult
 variables.tf                 # label, region, plan, os_id, ssh_port, admin_username, update_notification_email, update_reboot_time, allowed_ports
 outputs.tf                   # connection record per FR-016 (label, ip, admin user, ssh port)
 versions.tf                  # terraform + vultr provider version constraints
-terraform.tfvars.example     # documented defaults (region/plan/os) per FR-004
 
 cloud-init/
 └── user-data.yaml.tftpl     # FR-007, FR-008 (password generated on-box, never templated in), FR-012, FR-014, FR-015
