@@ -34,7 +34,7 @@ variable "admin_username" {
 
 variable "ssh_port" {
   type        = number
-  description = "Non-default SSH port the administrative account will use after hardening. Must be used consistently in every ssh/scp command against this server afterward."
+  description = "SSH port the administrative account uses after hardening."
   default     = 27983
 
   validation {

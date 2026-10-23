@@ -6,7 +6,7 @@
 label = "myserver"
 
 # Uncomment and override any of these if this server needs something other than
-# the shared defaults in ../terraform.tfvars.example:
+# the defaults declared in ../variables.tf:
 # region                     = "mia"
 # plan                       = "vc2-1c-1gb"
 # os_id                      = 2136

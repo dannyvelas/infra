@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
-# Generates a dedicated, per-server SSH key pair.
-# One key per label, never reused across servers. The passphrase is set
-# interactively by the operator and is never captured or persisted by this
-# script — only the resulting key files exist on disk afterward.
 set -euo pipefail
 
+# short-hand to check if the first argument is set, and error out if not
 label="${1:?usage: generate-ssh-key.sh <label>}"
 key_path="${HOME}/.ssh/id_ed25519_${label}"
 
@@ -14,5 +11,4 @@ else
   ssh-keygen -t ed25519 -f "${key_path}" -C "admin@${label}"
 fi
 
-# Only the public key is safe to feed into Terraform-managed resources.
 cat "${key_path}.pub"

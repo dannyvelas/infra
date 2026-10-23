@@ -1,0 +1,37 @@
+#cloud-config
+package_update: true
+packages:
+  - unattended-upgrades
+  # packages for local mail delivery. dont actually relay anywhere
+  - apt-listchanges
+  - bsd-mailx
+
+users:
+  - name: ${admin_username}
+    groups: [sudo]
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    ssh_authorized_keys:
+      - ${admin_public_key}
+
+runcmd:
+  - set -e
+  - RECOVERY_PASSWORD=$(openssl rand -base64 18)
+  # the non-interactive equivalent of running `passwd admin`
+  - printf '%s:%s\n' "${admin_username}" "$RECOVERY_PASSWORD" | chpasswd
+  # one-liner to create /root/.console-recovery-password file with owner root:root and 600
+  - install -m 600 -o root -g root /dev/null /root/.console-recovery-password
+  - printf '%s\n' "$RECOVERY_PASSWORD" > /root/.console-recovery-password
+  - printf 'Port %s\n' "${ssh_port}" > /etc/ssh/sshd_config.d/00-admin.conf
+  - systemctl is-active ssh.socket && systemctl restart ssh.socket || systemctl restart ssh
+  - |
+    cat > /etc/apt/apt.conf.d/20auto-upgrades <<'EOF'
+    APT::Periodic::Update-Package-Lists "1";
+    APT::Periodic::Unattended-Upgrade "1";
+    EOF
+  - printf 'Unattended-Upgrade::Mail "%s";\n' "${update_notification_email}" > /etc/apt/apt.conf.d/51custom-unattended-upgrades
+  - printf 'Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";\n' >> /etc/apt/apt.conf.d/51custom-unattended-upgrades
+  - printf 'Unattended-Upgrade::Remove-Unused-Dependencies "true";\n' >> /etc/apt/apt.conf.d/51custom-unattended-upgrades
+  - printf 'Unattended-Upgrade::Automatic-Reboot "true";\n' >> /etc/apt/apt.conf.d/51custom-unattended-upgrades
+  - printf 'Unattended-Upgrade::Automatic-Reboot-Time "%s";\n' "${update_reboot_time}" >> /etc/apt/apt.conf.d/51custom-unattended-upgrades
+  - systemctl enable --now unattended-upgrades
