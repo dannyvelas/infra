@@ -1,14 +1,4 @@
 #cloud-config
-# Rendered by main.tf via templatefile() into vultr_instance.user_data.
-# Runs unattended at first boot: creates the admin account, installs the
-# update packages, and brings up SSH on ssh_port. The verify -> lock-down
-# gate that disables root/password login stays external, in scripts/.
-#
-# IMPORTANT: ${...} below is Terraform templatefile() interpolation of values
-# this file is rendered with. Shell variables created in runcmd (e.g.
-# RECOVERY_PASSWORD) are deliberately referenced WITHOUT braces ($VAR, not
-# ${VAR}) to avoid colliding with Terraform's template syntax.
-
 package_update: true
 packages:
   - unattended-upgrades
@@ -19,17 +9,12 @@ users:
   - name: ${admin_username}
     groups: [sudo]
     shell: /bin/bash
-    # Passwordless sudo — exactly "ALL=(ALL) NOPASSWD:ALL".
     sudo: ["ALL=(ALL) NOPASSWD:ALL"]
     ssh_authorized_keys:
       - ${admin_public_key}
 
 runcmd:
   - set -e
-  # The console-recovery password is generated on this instance and is
-  # never templated into this file, so it never enters user_data or
-  # Terraform state. scripts/fetch-recovery-password.sh retrieves and
-  # deletes /root/.console-recovery-password exactly once, later.
   - RECOVERY_PASSWORD=$(openssl rand -base64 18)
   - printf '%s:%s\n' "${admin_username}" "$RECOVERY_PASSWORD" | chpasswd
   - install -m 600 -o root -g root /dev/null /root/.console-recovery-password

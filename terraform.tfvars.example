@@ -1,10 +1,3 @@
-# Documented defaults for region/plan/os_id.
-# Copy to a servers/<label>.tfvars file per server — see servers/myserver.tfvars.example.
-# Confirm these are still current before relying on them:
-#   vultr-cli regions list
-#   vultr-cli plans list
-#   vultr-cli os list | grep -i debian
-
 region = "mia"
 plan   = "vc2-1c-1gb"
 os_id  = 2136
