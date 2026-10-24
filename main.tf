@@ -88,8 +88,4 @@ resource "terraform_data" "verify_and_lockdown" {
   provisioner "local-exec" {
     command = "${path.module}/scripts/lockdown-ssh.sh ${vultr_instance.server.main_ip} ${var.ssh_port} ${var.admin_username} ${local.ssh_private_key_path}"
   }
-
-  provisioner "local-exec" {
-    command = "${path.module}/scripts/print-connection-info.sh ${var.label} ${vultr_instance.server.main_ip} ${var.ssh_port} ${var.admin_username}"
-  }
 }

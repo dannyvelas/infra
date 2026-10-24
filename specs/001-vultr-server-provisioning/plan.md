@@ -69,8 +69,7 @@ scripts/
 ├── generate-ssh-key.sh          # FR-001, FR-002: dedicated keypair, never persisted to state/repo (local, pre-instance)
 ├── verify-admin-access.sh       # FR-009: admin key auth + passwordless sudo verification gate (retries until cloud-init has finished)
 ├── fetch-recovery-password.sh   # FR-008: one-time retrieval/print of the on-box-generated password, then deletes it
-├── lockdown-ssh.sh              # FR-013: disables root/password auth on sshd_config.d, same port, after verification passes
-└── print-connection-info.sh     # FR-016: emits the post-run connection record
+└── lockdown-ssh.sh              # FR-013: disables root/password auth on sshd_config.d, same port, after verification passes
 
 tests/
 └── validate.sh                 # terraform validate + terraform fmt -check + shellcheck wrapper

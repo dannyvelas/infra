@@ -77,9 +77,8 @@ tests/validate.sh
 - [ ] T017 [P] [US1] Write `scripts/verify-admin-access.sh`: retries, with a bounded timeout, `ssh -p ${ssh_port}` as `${admin_username}` with the dedicated key running `id; sudo whoami`; exits `0` only once `id` shows the admin account in the `sudo` group and `sudo whoami` prints `root` with no password prompt (FR-009). No connection can succeed until cloud-init has finished, so this single retry loop also covers "wait for cloud-init" — no separate step is needed (research.md §2).
 - [ ] T018 [P] [US1] Write `scripts/fetch-recovery-password.sh`: SSHes as `${admin_username}` on `${ssh_port}`, uses sudo to `cat` the root-only password file written in T012, prints the value to stdout exactly once, then deletes that file from the instance so nothing recoverable remains on disk (FR-008, research.md §3)
 - [ ] T020 [P] [US1] Write `scripts/lockdown-ssh.sh`: rewrites `/etc/ssh/sshd_config.d/00-admin.conf` to contain `Port ${ssh_port}`, `PermitRootLogin no`, and `PasswordAuthentication no`; restarts whichever of `ssh.service`/`ssh.socket` is active (FR-013)
-- [ ] T021 [P] [US1] Write `scripts/print-connection-info.sh`: prints the server's `label`, `ip_address`, `admin_username`, and `ssh_port` as the FR-016 connection record, and nothing else
-- [ ] T022 [US1] In `main.tf`, add a `terraform_data` that `depends_on` the `vultr_instance`, with `local-exec` provisioners invoking, strictly in this order, T017 → T018 → T020 → T021, so that a non-zero exit from any step aborts every step after it (FR-010, FR-018, research.md §2)
-- [ ] T023 [P] [US1] Create `outputs.tf` exposing exactly `label`, `ip_address`, `admin_username`, and `ssh_port`, matching contracts/interface.md's Output contract table — no secret value may appear in any output
+- [ ] T022 [US1] In `main.tf`, add a `terraform_data` that `depends_on` the `vultr_instance`, with `local-exec` provisioners invoking, strictly in this order, T017 → T018 → T020, so that a non-zero exit from any step aborts every step after it (FR-010, FR-018, research.md §2)
+- [ ] T023 [P] [US1] Create `outputs.tf` exposing exactly `label`, `ip_address`, `admin_username`, and `ssh_port`, matching contracts/interface.md's Output contract table — no secret value may appear in any output. Terraform prints these automatically at the end of every successful `apply`, which is the FR-016 connection record — no separate script is needed.
 - [ ] T024 [US1] Run quickstart.md Steps 1–3 against one real, disposable Vultr instance: confirm the apply succeeds, the recovery password and key passphrase are each shown exactly once, and every Step 3 check passes (admin key+sudo access works; root login over `ssh_port` is refused; `unattended-upgrades` is enabled; the firewall group allows only `ssh_port`/`allowed_ports`)
 
 **Checkpoint**: User Story 1 is fully functional and independently testable — a complete happy-path run produces a hardened, auto-updating server end to end.
@@ -124,14 +123,14 @@ tests/validate.sh
 
 ### Within Each User Story
 
-- US1: SSH key generation (T009–T010) → instance resource (T011) → cloud-init template (T012–T015) → verify/lock-down scripts (T017, T018, T020, T021, parallel) → wiring them into the provisioner chain (T022) → outputs (T023) → end-to-end validation (T024)
+- US1: SSH key generation (T009–T010) → instance resource (T011) → cloud-init template (T012–T015) → verify/lock-down scripts (T017, T018, T020, parallel) → wiring them into the provisioner chain (T022) → outputs (T023) → end-to-end validation (T024)
 - US2: failure-messaging edit (T025) → chain review (T027) → forced-failure validation (T028)
 
 ### Parallel Opportunities
 
 - Setup: T002, T003, T004 (after T001)
 - Foundational: T007 (after T005)
-- US1: T012 can start alongside T009–T011; T017, T018, T020, T021, T023 are all independent files and can be written in parallel once T015 has defined what they'll be wired into
+- US1: T012 can start alongside T009–T011; T017, T018, T020, T023 are all independent files and can be written in parallel once T015 has defined what they'll be wired into
 - Polish: T029, T030
 
 ---
@@ -144,7 +143,6 @@ tests/validate.sh
 Task: "Write scripts/verify-admin-access.sh"
 Task: "Write scripts/fetch-recovery-password.sh"
 Task: "Write scripts/lockdown-ssh.sh"
-Task: "Write scripts/print-connection-info.sh"
 Task: "Create outputs.tf"
 ```
 
@@ -176,5 +174,6 @@ Task: "Create outputs.tf"
 - No automated test framework is used (research.md §7) — quickstart.md runs against real infrastructure serve as the acceptance tests, called out explicitly as tasks T024 and T028
 - T016 (wait-for-cloud-init.sh) and T019 (verify-new-port.sh) were dropped: verify-admin-access.sh's retry loop over `ssh_port` already covers both (research.md §2)
 - T006 (`terraform.tfvars.example`) was dropped: it only restated defaults already declared in `variables.tf` (T005) and was never auto-loaded by Terraform (only a literal `terraform.tfvars` or `*.auto.tfvars` would be) — redundant with no functional purpose
+- T021 (`print-connection-info.sh`) was dropped: `outputs.tf` (T023) already exposes the same values, and Terraform prints every output automatically at the end of a successful `apply` — a custom script printing the same thing added nothing
 - Commit after each task or logical group
 - Every secret-handling task (T009, T012, T018) must be re-checked against research.md §3 before being considered done: no passphrase or recovery password may ever be written to a `.tf`-managed attribute, an output, or version control
