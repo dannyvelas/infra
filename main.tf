@@ -8,8 +8,8 @@ locals {
   ssh_private_key_path = "${pathexpand("~/.ssh")}/id_ed25519_${var.label}"
 }
 
-resource "null_resource" "generate_ssh_key" {
-  triggers = {
+resource "terraform_data" "generate_ssh_key" {
+  triggers_replace = {
     label = var.label
   }
 
@@ -20,7 +20,7 @@ resource "null_resource" "generate_ssh_key" {
 
 data "local_file" "admin_public_key" {
   filename   = "${local.ssh_private_key_path}.pub"
-  depends_on = [null_resource.generate_ssh_key]
+  depends_on = [terraform_data.generate_ssh_key]
 }
 
 resource "vultr_ssh_key" "admin" {
@@ -70,10 +70,10 @@ resource "vultr_instance" "server" {
   })
 }
 
-resource "null_resource" "verify_and_lockdown" {
+resource "terraform_data" "verify_and_lockdown" {
   depends_on = [vultr_instance.server]
 
-  triggers = {
+  triggers_replace = {
     instance_id = vultr_instance.server.id
   }
 
