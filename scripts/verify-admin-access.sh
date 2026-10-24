@@ -10,6 +10,11 @@ timeout_seconds=300
 interval_seconds=5
 elapsed=0
 
+# buncha checks at once:
+# 1. do we belong EXACTLY to `sudo`
+# 2. does sudo NOT prompt for a password
+# 3. does `sudo whoami` return `root`
+# all should be true
 remote_check='id -nG | tr " " "\n" | grep -qx sudo && sudo -n whoami | grep -qx root'
 
 while true; do
