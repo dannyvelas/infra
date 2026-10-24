@@ -24,7 +24,3 @@ terraform apply -var-file=servers/<label>.tfvars
 ```
 
 The apply prints the SSH key passphrase and the admin console-recovery password to your terminal exactly once — copy them into your own secret storage before closing that terminal. Connection details (`ip_address`, `admin_username`, `ssh_port`) are available afterward via `terraform output`.
-
-## Validation
-
-See [specs/001-vultr-server-provisioning/quickstart.md](specs/001-vultr-server-provisioning/quickstart.md) for the full end-to-end validation steps.
