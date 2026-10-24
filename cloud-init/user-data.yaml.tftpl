@@ -22,6 +22,10 @@ runcmd:
   # one-liner to create /root/.console-recovery-password file with owner root:root and 600
   - install -m 600 -o root -g root /dev/null /root/.console-recovery-password
   - printf '%s\n' "$RECOVERY_PASSWORD" > /root/.console-recovery-password
+  # we can't just put `PermitRootLogin no` and `PasswordAuthentication no` quite yet.
+  # on the off-chance that there's some issue with login via ssh-key, these two additional
+  # directives would effectively lock us out. later on we'll validate that login via ssh-key
+  # works, and only then do we add those two directives
   - printf 'Port %s\n' "${ssh_port}" > /etc/ssh/sshd_config.d/00-admin.conf
   - systemctl is-active ssh.socket && systemctl restart ssh.socket || systemctl restart ssh
   - |
