@@ -40,6 +40,8 @@ runcmd:
   - printf 'Unattended-Upgrade::Automatic-Reboot-Time "%s";\n' "${update_reboot_time}" >> /etc/apt/apt.conf.d/51custom-unattended-upgrades
   - systemctl enable --now unattended-upgrades
 %{~ if enable_kamal ~}
+  # install docker. we do it here and not in the `packages` block because Debian's default sources don't carry docker-ce
+  # we could've used an apt.sources to add the docker repo declaratively, but opted not to just so that we have all the kamal logic here
   - install -m 0755 -d /etc/apt/keyrings
   - curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
   - chmod a+r /etc/apt/keyrings/docker.asc
