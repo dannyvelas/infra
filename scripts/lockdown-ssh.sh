@@ -6,6 +6,11 @@ ssh_port="${2:?usage: lockdown-ssh.sh <ip> <ssh_port> <admin_username> <key_path
 admin_username="${3:?usage: lockdown-ssh.sh <ip> <ssh_port> <admin_username> <key_path>}"
 key_path="${4:?usage: lockdown-ssh.sh <ip> <ssh_port> <admin_username> <key_path>}"
 
+# 1. we're using `tee` to write to the ssh config file instead of naively using shell redirection (>)
+# this is because shell redirection gets interpreted before `sudo` and would fail with permission denied
+# tee uses `sudo`
+# 2. the lack of single-quotes around EOF and the apostrophes around CONF are load-bearing. it makes the
+# ssh_port variable get interpreted by this outer shell (not the inner shell)
 remote_cmd="$(cat <<EOF
 sudo tee /etc/ssh/sshd_config.d/00-admin.conf > /dev/null <<'CONF'
 Port ${ssh_port}
