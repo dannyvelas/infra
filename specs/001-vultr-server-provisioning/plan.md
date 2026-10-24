@@ -54,7 +54,7 @@ specs/001-vultr-server-provisioning/
 ### Source Code (repository root)
 
 ```text
-main.tf                      # vultr_ssh_key + vultr_firewall_group/rules + vultr_instance (user_data = rendered cloud-init) + null_resource verify/lockdown chain
+main.tf                      # vultr_ssh_key + vultr_firewall_group/rules + vultr_instance (user_data = rendered cloud-init) + terraform_data verify/lockdown chain
 variables.tf                 # label, region, plan, os_id, ssh_port, admin_username, update_notification_email, update_reboot_time, allowed_ports
 outputs.tf                   # connection record per FR-016 (label, ip, admin user, ssh port)
 versions.tf                  # terraform + vultr provider version constraints
@@ -76,7 +76,7 @@ tests/
 └── validate.sh                 # terraform validate + terraform fmt -check + shellcheck wrapper
 ```
 
-**Structure Decision**: Single Terraform root module at the repository root (this repo is dedicated to infrastructure-as-code, so no separate `infra/` nesting is needed). One root module handles the full resource + bootstrap + hardening + update lifecycle for one server per `terraform apply`; each server gets its own `servers/<label>.tfvars` file and, per FR-001's "never reuse a key across servers" rule, its own Terraform state (one state file/workspace per label — see research.md §5). The bootstrap half of the runbook (Steps 3 and 5, plus the SSH-port setup half of Step 4) is expressed declaratively as a cloud-init template passed through `user_data`, plus the firewall rules as plain Terraform resources — no SSH session is opened for any of it. Only the verify → lock-down gate (the risky half of Step 4 — disabling root login and password auth) runs as an ordered chain of `local-exec` scripts on a `null_resource` depending on the instance, so a failing verification script aborts `terraform apply` before that irreversible step runs (research.md §2).
+**Structure Decision**: Single Terraform root module at the repository root (this repo is dedicated to infrastructure-as-code, so no separate `infra/` nesting is needed). One root module handles the full resource + bootstrap + hardening + update lifecycle for one server per `terraform apply`; each server gets its own `servers/<label>.tfvars` file and, per FR-001's "never reuse a key across servers" rule, its own Terraform state (one state file/workspace per label — see research.md §5). The bootstrap half of the runbook (Steps 3 and 5, plus the SSH-port setup half of Step 4) is expressed declaratively as a cloud-init template passed through `user_data`, plus the firewall rules as plain Terraform resources — no SSH session is opened for any of it. Only the verify → lock-down gate (the risky half of Step 4 — disabling root login and password auth) runs as an ordered chain of `local-exec` scripts on a `terraform_data` depending on the instance, so a failing verification script aborts `terraform apply` before that irreversible step runs (research.md §2).
 
 ## Complexity Tracking
 
