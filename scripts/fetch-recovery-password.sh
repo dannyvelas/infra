@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# this script exists because cloud-init creates a password at boot that nobody, not even the operator
+# knows. terraform will local-exec this script to give this password for the operator to save somewhere safe
 set -euo pipefail
 
 ip="${1:?usage: fetch-recovery-password.sh <ip> <ssh_port> <admin_username> <key_path>}"
