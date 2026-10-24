@@ -62,11 +62,11 @@ resource "vultr_instance" "server" {
   ssh_key_ids       = [vultr_ssh_key.admin.id]
   firewall_group_id = vultr_firewall_group.admin.id
   user_data = templatefile("${path.module}/cloud-init/user-data.yaml.tftpl", {
-    admin_username             = var.admin_username
-    admin_public_key           = trimspace(data.local_file.admin_public_key.content)
-    ssh_port                   = var.ssh_port
-    update_notification_email  = var.update_notification_email
-    update_reboot_time         = var.update_reboot_time
+    admin_username            = var.admin_username
+    admin_public_key          = trimspace(data.local_file.admin_public_key.content)
+    ssh_port                  = var.ssh_port
+    update_notification_email = var.update_notification_email
+    update_reboot_time        = var.update_reboot_time
   })
 }
 
