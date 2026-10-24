@@ -39,3 +39,20 @@ runcmd:
   - printf 'Unattended-Upgrade::Automatic-Reboot "true";\n' >> /etc/apt/apt.conf.d/51custom-unattended-upgrades
   - printf 'Unattended-Upgrade::Automatic-Reboot-Time "%s";\n' "${update_reboot_time}" >> /etc/apt/apt.conf.d/51custom-unattended-upgrades
   - systemctl enable --now unattended-upgrades
+%{~ if enable_kamal ~}
+  # install docker. we do it here and not in the `packages` block because Debian's default sources don't carry docker-ce
+  # we could've used an apt.sources to add the docker repo declaratively, but opted not to just so that we have all the kamal logic here
+  - install -m 0755 -d /etc/apt/keyrings
+  - curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+  - chmod a+r /etc/apt/keyrings/docker.asc
+  - echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian $(. /etc/os-release && echo "$VERSION_CODENAME") stable" > /etc/apt/sources.list.d/docker.list
+  - apt-get update
+  - apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+  - adduser --disabled-password --gecos "" deploy
+  - usermod -aG docker deploy
+  - mkdir -p /home/deploy/.ssh
+  - cp /home/${admin_username}/.ssh/authorized_keys /home/deploy/.ssh/authorized_keys
+  - chown -R deploy:deploy /home/deploy/.ssh
+  - chmod 700 /home/deploy/.ssh
+  - chmod 600 /home/deploy/.ssh/authorized_keys
+%{~ endif ~}

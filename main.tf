@@ -54,6 +54,18 @@ resource "vultr_firewall_rule" "allowed" {
   notes             = "operator-designated workload port"
 }
 
+resource "vultr_firewall_rule" "kamal_proxy" {
+  for_each = var.enable_kamal ? toset(["80", "443"]) : toset([])
+
+  firewall_group_id = vultr_firewall_group.admin.id
+  protocol          = "tcp"
+  ip_type           = "v4"
+  subnet            = "0.0.0.0"
+  subnet_size       = 0
+  port              = each.value
+  notes             = "kamal-proxy HTTP/HTTPS"
+}
+
 resource "vultr_instance" "server" {
   label             = var.label
   region            = var.region
@@ -67,6 +79,7 @@ resource "vultr_instance" "server" {
     ssh_port                  = var.ssh_port
     update_notification_email = var.update_notification_email
     update_reboot_time        = var.update_reboot_time
+    enable_kamal              = var.enable_kamal
   })
 }
 

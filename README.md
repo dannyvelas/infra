@@ -2,6 +2,8 @@
 
 Terraform module that provisions a hardened Vultr server: a dedicated SSH key, the instance itself, a non-root admin user with passwordless sudo, a firewall, hardened SSH, and automatic security updates.
 
+Set `enable_kamal = true` in a server's tfvars to also provision it to run [kamal](https://kamal-deploy.org/): this installs Docker from its official apt repo, creates a passwordless, sudo-less `deploy` user for kamal's SSH access, and opens the firewall for kamal-proxy's HTTP/HTTPS traffic. Everything after that (writing `config/deploy.yml`, Bitwarden secrets, `kamal setup`/`deploy`) stays a manual, app-repo-level step.
+
 ## Prerequisites
 
 - Terraform >= 1.5
