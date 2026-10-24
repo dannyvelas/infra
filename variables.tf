@@ -65,3 +65,9 @@ variable "update_reboot_time" {
   description = "Time of day (HH:MM, instance local time) unattended-upgrades may automatically reboot the server if an upgrade requires it. Defaults to an off-hours time."
   default     = "04:00"
 }
+
+variable "enable_kamal" {
+  type        = bool
+  description = "Whether this server runs kamal: installs Docker from its official apt repo, creates a passwordless, sudo-less deploy user for kamal's SSH access, and opens the firewall for kamal-proxy's HTTP/HTTPS traffic."
+  default     = false
+}
