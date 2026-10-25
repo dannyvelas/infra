@@ -57,10 +57,4 @@ runcmd:
   - chmod 700 /home/deploy/.ssh
   - chmod 600 /home/deploy/.ssh/authorized_keys
 %{ endif ~}
-  - ssh-keygen -t ed25519 -N '' -C "recovery@${label}" -f /root/.ssh-recovery-key
-  - cat /root/.ssh-recovery-key.pub >> /home/${admin_username}/.ssh/authorized_keys
-  - chown ${admin_username}:${admin_username} /home/${admin_username}/.ssh/authorized_keys
-  - chmod 600 /home/${admin_username}/.ssh/authorized_keys
-  - rm -f /root/.ssh-recovery-key.pub
-  - chown root:root /root/.ssh-recovery-key
-  - chmod 600 /root/.ssh-recovery-key
+  - printf '%s\n' "${recovery_public_key}" >> /home/${admin_username}/.ssh/authorized_keys
