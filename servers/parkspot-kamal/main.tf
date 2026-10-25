@@ -23,7 +23,7 @@ module "server" {
   plan                      = "vc2-1c-1gb"
   os_id                     = 2136
   admin_username            = "admin"
-  ssh_port                  = 22
+  ssh_port                  = 27983
   allowed_ports             = []
   update_notification_email = "admin@example.com"
   update_reboot_time        = "04:00"
