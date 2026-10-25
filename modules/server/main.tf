@@ -19,7 +19,7 @@ resource "terraform_data" "generate_ssh_key" {
   }
 
   provisioner "local-exec" {
-    command = "${path.module}/scripts/generate-ssh-key.sh ${var.label}"
+    command = "${path.module}/scripts/generate-ssh-key.sh admin ${var.label}"
   }
 }
 
@@ -34,7 +34,7 @@ resource "terraform_data" "generate_recovery_key" {
   }
 
   provisioner "local-exec" {
-    command = "${path.module}/scripts/generate-recovery-key.sh ${var.label}"
+    command = "${path.module}/scripts/generate-ssh-key.sh recovery ${var.label}"
   }
 }
 
