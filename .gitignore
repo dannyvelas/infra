@@ -2,12 +2,10 @@
 .terraform/
 *.tfstate
 *.tfstate.*
-.terraform.lock.hcl
 crash.log
 crash.*.log
 
-# Real per-run variable files may reference actual labels/regions in use;
-# only the committed *.example templates are tracked.
+# Server settings live in each servers/<label>/main.tf, not in tfvars; this is a
+# guard so a stray variable file can't be committed with secrets in it.
 *.tfvars
-!*.tfvars.example
-!servers/*.tfvars.example
+*.tfvars.json

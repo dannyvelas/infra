@@ -1,9 +1,3 @@
-# this reads the api key from VULTR_API_KEY
-provider "vultr" {
-  rate_limit  = 500
-  retry_limit = 3
-}
-
 locals {
   ssh_private_key_path = "${pathexpand("~/.ssh")}/id_ed25519_${var.label}"
 
