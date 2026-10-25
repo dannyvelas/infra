@@ -1,6 +1,6 @@
 # infra
 
-Terraform module that provisions a hardened Vultr server: a dedicated SSH key, the instance itself, a non-root admin user with passwordless sudo, a firewall, hardened SSH, and automatic security updates.
+Terraform module that provisions a hardened Vultr server: a dedicated SSH key, a server-recovery SSH key, the instance itself, a non-root admin user with passwordless sudo, a firewall, hardened SSH, and automatic security updates.
 
 Set `enable_kamal = true` in a server's `main.tf` to also provision it to run [kamal](https://kamal-deploy.org/): this installs Docker from its official apt repo, creates a passwordless, sudo-less `deploy` user for kamal's SSH access, and opens the firewall for kamal-proxy's HTTP/HTTPS traffic. Everything after that (writing `config/deploy.yml`, Bitwarden secrets, `kamal setup`/`deploy`) stays a manual, app-repo-level step.
 
@@ -31,4 +31,4 @@ terraform -chdir=servers/<label> init
 terraform -chdir=servers/<label> apply
 ```
 
-The apply prints the SSH key passphrase and the admin console-recovery password to your terminal exactly once — copy them into your own secret storage before closing that terminal. Connection details (`ip_address`, `admin_username`, `ssh_port`) are available afterward via `terraform -chdir=servers/<label> output`.
+The apply prints the SSH key passphrase, the admin console-recovery password, and a dedicated server-recovery SSH private key to your terminal exactly once — copy all of them into your own secret storage before closing that terminal. The recovery private key exists solely to restore SSH access if your regular admin key is ever lost; its matching public key is installed permanently in the admin user's `authorized_keys`, so losing the printed private key after the fact means losing that recovery path, not current access. Connection details (`ip_address`, `admin_username`, `ssh_port`) are available afterward via `terraform -chdir=servers/<label> output`.

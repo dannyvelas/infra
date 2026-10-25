@@ -8,6 +8,7 @@ locals {
     update_notification_email = var.update_notification_email
     update_reboot_time        = var.update_reboot_time
     enable_kamal              = var.enable_kamal
+    label                     = var.label
   })
 }
 
@@ -104,6 +105,10 @@ resource "terraform_data" "verify_and_lockdown" {
 
   provisioner "local-exec" {
     command = "${path.module}/scripts/fetch-recovery-password.sh ${vultr_instance.server.main_ip} ${var.ssh_port} ${var.admin_username} ${local.ssh_private_key_path}"
+  }
+
+  provisioner "local-exec" {
+    command = "${path.module}/scripts/fetch-recovery-ssh-key.sh ${vultr_instance.server.main_ip} ${var.ssh_port} ${var.admin_username} ${local.ssh_private_key_path}"
   }
 
   provisioner "local-exec" {
