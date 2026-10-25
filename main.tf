@@ -82,13 +82,6 @@ resource "terraform_data" "user_data" {
 }
 
 resource "vultr_instance" "server" {
-  # we need to prevent a race condition where the server gets attached to an empty default-deny group
-  depends_on = [
-    vultr_firewall_rule.ssh,
-    vultr_firewall_rule.allowed,
-    vultr_firewall_rule.kamal_proxy,
-  ]
-
   label             = var.label
   region            = var.region
   plan              = var.plan
