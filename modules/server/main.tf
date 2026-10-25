@@ -85,6 +85,13 @@ resource "vultr_instance" "server" {
   user_data         = local.user_data
   backups           = var.enable_backups ? "enabled" : "disabled"
 
+  dynamic "backups_schedule" {
+    for_each = var.enable_backups ? [1] : []
+    content {
+      type = "daily"
+    }
+  }
+
   # this makes it so that if we change something in cloud-init it triggers
   # a replacement of the whole instance
   lifecycle {
