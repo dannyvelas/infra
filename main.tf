@@ -82,6 +82,7 @@ resource "terraform_data" "user_data" {
 }
 
 resource "vultr_instance" "server" {
+  # we need to prevent a race condition where the server gets attached to an empty default-deny group
   depends_on = [
     vultr_firewall_rule.ssh,
     vultr_firewall_rule.allowed,
@@ -96,6 +97,8 @@ resource "vultr_instance" "server" {
   firewall_group_id = vultr_firewall_group.admin.id
   user_data         = local.user_data
 
+  # this makes it so that if we change something in cloud-init it triggers
+  # a replacement of the whole instance
   lifecycle {
     replace_triggered_by = [terraform_data.user_data]
   }
