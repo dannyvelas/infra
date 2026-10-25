@@ -83,6 +83,7 @@ resource "vultr_instance" "server" {
   ssh_key_ids       = [vultr_ssh_key.admin.id]
   firewall_group_id = vultr_firewall_group.admin.id
   user_data         = local.user_data
+  backups           = var.enable_backups ? "enabled" : "disabled"
 
   # this makes it so that if we change something in cloud-init it triggers
   # a replacement of the whole instance

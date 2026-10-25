@@ -71,3 +71,9 @@ variable "enable_kamal" {
   description = "Whether this server runs kamal: installs Docker from its official apt repo, creates a passwordless, sudo-less deploy user for kamal's SSH access, and opens the firewall for kamal-proxy's HTTP/HTTPS traffic."
   default     = false
 }
+
+variable "enable_backups" {
+  type        = bool
+  description = "Whether Vultr takes automatic recurring backups of this instance. Billed by Vultr as an extra recurring cost on top of the plan price."
+  default     = true
+}

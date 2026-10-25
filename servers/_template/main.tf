@@ -28,4 +28,5 @@ module "server" {
   update_notification_email = "admin@example.com"
   update_reboot_time        = "04:00"
   enable_kamal              = false
+  enable_backups            = true
 }
