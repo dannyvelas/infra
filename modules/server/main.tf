@@ -84,6 +84,7 @@ resource "vultr_instance" "server" {
   firewall_group_id = vultr_firewall_group.admin.id
   user_data         = local.user_data
   backups           = var.enable_backups ? "enabled" : "disabled"
+  enable_ipv6       = true
 
   dynamic "backups_schedule" {
     for_each = var.enable_backups ? [1] : []
