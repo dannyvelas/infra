@@ -10,6 +10,10 @@ output "ip_address" {
   value = vultr_instance.server.main_ip
 }
 
+output "ipv6_address" {
+  value = vultr_instance.server.v6_main_ip
+}
+
 output "admin_username" {
   value = var.admin_username
 }

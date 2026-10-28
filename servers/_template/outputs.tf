@@ -6,6 +6,10 @@ output "ip_address" {
   value = module.server.ip_address
 }
 
+output "ipv6_address" {
+  value = module.server.ipv6_address
+}
+
 output "admin_username" {
   value = module.server.admin_username
 }
