@@ -1,9 +1,11 @@
 locals {
-  ssh_private_key_path = "${pathexpand("~/.ssh")}/id_ed25519_${var.label}"
+  ssh_private_key_path      = "${pathexpand("~/.ssh")}/id_ed25519_${var.label}"
+  recovery_private_key_path = "${pathexpand("~/.ssh")}/id_ed25519_${var.label}-recovery"
 
   user_data = templatefile("${path.module}/cloud-init/user-data.yaml.tftpl", {
     admin_username            = var.admin_username
     admin_public_key          = trimspace(data.local_file.admin_public_key.content)
+    recovery_public_key       = trimspace(data.local_file.recovery_public_key.content)
     ssh_port                  = var.ssh_port
     update_notification_email = var.update_notification_email
     update_reboot_time        = var.update_reboot_time
@@ -17,13 +19,28 @@ resource "terraform_data" "generate_ssh_key" {
   }
 
   provisioner "local-exec" {
-    command = "${path.module}/scripts/generate-ssh-key.sh ${var.label}"
+    command = "${path.module}/scripts/generate-ssh-key.sh admin ${var.label}"
   }
 }
 
 data "local_file" "admin_public_key" {
   filename   = "${local.ssh_private_key_path}.pub"
   depends_on = [terraform_data.generate_ssh_key]
+}
+
+resource "terraform_data" "generate_recovery_key" {
+  triggers_replace = {
+    label = var.label
+  }
+
+  provisioner "local-exec" {
+    command = "${path.module}/scripts/generate-ssh-key.sh recovery ${var.label}"
+  }
+}
+
+data "local_file" "recovery_public_key" {
+  filename   = "${local.recovery_private_key_path}.pub"
+  depends_on = [terraform_data.generate_recovery_key]
 }
 
 resource "vultr_ssh_key" "admin" {
@@ -113,6 +130,10 @@ resource "terraform_data" "verify_and_lockdown" {
 
   provisioner "local-exec" {
     command = "${path.module}/scripts/fetch-recovery-password.sh ${vultr_instance.server.main_ip} ${var.ssh_port} ${var.admin_username} ${local.ssh_private_key_path}"
+  }
+
+  provisioner "local-exec" {
+    command = "${path.module}/scripts/print-and-delete-recovery-key.sh ${local.recovery_private_key_path} ${var.label}"
   }
 
   provisioner "local-exec" {
