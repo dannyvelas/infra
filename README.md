@@ -15,6 +15,7 @@ Set `enable_kamal = true` in a server's `main.tf` to also provision it to run [k
 - `modules/server/` — the module itself. Nothing is applied from here.
 - `servers/<label>/` — one Terraform root per server, holding that server's settings as committed HCL and its own state. Adding, changing, or destroying one server never touches another.
 - `servers/_template/` — the starting point for a new server. Not a real server; never applied directly.
+- `object-storage/<label>/` — same isolation principle as `servers/<label>/`, but for a Vultr Object Storage bucket instead of a server. Each one is its own Terraform root with its own state.
 
 ## Usage
 
