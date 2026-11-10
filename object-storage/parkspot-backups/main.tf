@@ -18,14 +18,14 @@ provider "vultr" {
 data "vultr_object_storage_cluster" "this" {
   filter {
     name   = "hostname"
-    values = ["atl1.vultrobjects.com"]
+    values = ["atl2.vultrobjects.com"]
   }
 }
 
 data "vultr_object_storage_tier" "this" {
   filter {
-    name   = "region"
-    values = ["atl"]
+    name   = "slug"
+    values = ["tier_008h_0600m_archive"]
   }
 }
 
