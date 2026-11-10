@@ -17,15 +17,15 @@ provider "vultr" {
 
 data "vultr_object_storage_cluster" "this" {
   filter {
-    name   = "region"
-    values = ["mia"]
+    name   = "hostname"
+    values = ["atl1.vultrobjects.com"]
   }
 }
 
 data "vultr_object_storage_tier" "this" {
   filter {
     name   = "region"
-    values = ["mia"]
+    values = ["atl"]
   }
 }
 
