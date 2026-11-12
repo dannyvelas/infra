@@ -14,4 +14,6 @@ password="$(ssh -i "${key_path}" -p "${ssh_port}" \
   -o StrictHostKeyChecking=accept-new -o ConnectTimeout=5 -o BatchMode=yes \
   "${admin_username}@${ip}" "${remote_cmd}")"
 
+echo "=== admin console-recovery password for ${admin_username}@${ip} (save this now; it will not be shown again) ===" >&2
 printf '%s\n' "${password}"
+echo "=== end admin console-recovery password ===" >&2
