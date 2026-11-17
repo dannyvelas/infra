@@ -100,6 +100,20 @@ resource "vultr_instance" "server" {
   }
 }
 
+resource "vultr_reserved_ip" "main_v4" {
+  region      = var.region
+  ip_type     = "v4"
+  label       = "${var.label}-reserved-v4"
+  instance_id = vultr_instance.server.id
+}
+
+resource "vultr_reserved_ip" "main_v6" {
+  region      = var.region
+  ip_type     = "v6"
+  label       = "${var.label}-reserved-v6"
+  instance_id = vultr_instance.server.id
+}
+
 resource "terraform_data" "verify_and_lockdown" {
   depends_on = [vultr_instance.server]
 
